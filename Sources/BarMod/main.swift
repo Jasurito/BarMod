@@ -17,6 +17,10 @@ if let flag = arguments.firstIndex(of: "--render-preview"), flag + 1 < arguments
     Diagnostics.renderPreview(to: arguments[flag + 1])
     exit(0)
 }
+if let flag = arguments.firstIndex(of: "--render-settings"), flag + 1 < arguments.count {
+    Diagnostics.renderSettings(to: arguments[flag + 1])
+    exit(0)
+}
 
 let application = NSApplication.shared
 let delegate = AppDelegate()

@@ -10,7 +10,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private static let seededPosition = 300
     private static let accessibilitySettingsURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
 
-    private let model = TrayModel()
+    private let settings = AppSettings()
+    private lazy var model = TrayModel(settings: settings)
+    private lazy var settingsWindow = SettingsWindow(settings: settings)
     private var statusItem: NSStatusItem?
     private var panel: TrayPanel?
     private var refreshTask: Task<Void, Never>?
@@ -99,9 +101,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let statusItem, let button = statusItem.button else { return }
         panel?.hide()
         let menu = NSMenu()
+        let settingsItem = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: "")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+        menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit BarMod", action: #selector(NSApplication.terminate(_:)), keyEquivalent: ""))
         statusItem.menu = menu
         button.performClick(nil)
         statusItem.menu = nil
+    }
+
+    @objc private func openSettings() {
+        settingsWindow.show()
     }
 }

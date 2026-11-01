@@ -66,7 +66,7 @@ final class TrayPanel: NSPanel {
     /// Sizes from the model, because SwiftUI has not laid out new state yet.
     func fitToContent() {
         guard let buttonWindow = anchor?.window, let screen = buttonWindow.screen ?? NSScreen.main else { return }
-        let size = TrayGrid.size(for: model.layoutCount)
+        let size = model.panelSize
         let originX = TrayGrid.originX(
             anchorMidX: buttonWindow.frame.midX,
             panelWidth: size.width,

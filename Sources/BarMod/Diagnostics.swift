@@ -113,7 +113,8 @@ enum Diagnostics {
     }
 
     /// Renders every menu bar icon in the popup layout, for checking icons
-    /// without a screen. Needs Accessibility, so run it through `open`.
+    /// without a screen. Needs Accessibility, so run it through `open`. Settings
+    /// can be overridden with arguments, for example `-popupStyle list`.
     static func renderPreview(to path: String) {
         guard let screen = NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 }) ?? NSScreen.main else { return }
         let snapshot = MenuBarScanner.scan(
@@ -122,29 +123,42 @@ enum Diagnostics {
             frontmostPID: NSWorkspace.shared.frontmostApplication?.processIdentifier,
             excluding: nil
         )
-        let model = TrayModel()
+        let model = TrayModel(settings: AppSettings())
         model.isTrusted = true
         model.hiddenItems = snapshot.items
-        renderPopup(model, to: path)
+        render(
+            TrayView(model: model, onPress: { _ in }, onOpenAccessibilitySettings: {}),
+            size: model.panelSize,
+            to: path
+        )
     }
 
-    private static func renderPopup(_ model: TrayModel, to path: String) {
-        let view = TrayView(model: model, onPress: { _ in }, onOpenAccessibilitySettings: {})
-            .environment(\.colorScheme, .dark)
-            .padding(12)
-            .background(Color.black)
-        let renderer = ImageRenderer(content: view)
-        renderer.scale = 2
-        guard let image = renderer.cgImage else {
+    /// Renders the Settings window's content.
+    static func renderSettings(to path: String) {
+        render(SettingsView(settings: AppSettings(), loginItem: LoginItem()), size: CGSize(width: 360, height: 300), to: path)
+    }
+
+    /// Draws through a real hosting view because `ImageRenderer` cannot draw
+    /// scroll views or AppKit-backed controls.
+    private static func render(_ view: some View, size: CGSize, to path: String) {
+        _ = NSApplication.shared
+        let hosting = NSHostingView(rootView: view.background(Color.black).environment(\.colorScheme, .dark))
+        let window = NSWindow(
+            contentRect: CGRect(x: -10_000, y: -10_000, width: size.width, height: size.height),
+            styleMask: .borderless,
+            backing: .buffered,
+            defer: false
+        )
+        window.appearance = NSAppearance(named: .darkAqua)
+        window.contentView = hosting
+        window.orderFrontRegardless()
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.5))
+        guard let bitmap = hosting.bitmapImageRepForCachingDisplay(in: hosting.bounds) else {
             print("render failed")
             return
         }
-        writePNG(image, to: path)
-    }
-
-    private static func writePNG(_ image: CGImage, to path: String) {
-        let data = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])
-        FileManager.default.createFile(atPath: path, contents: data)
+        hosting.cacheDisplay(in: hosting.bounds, to: bitmap)
+        FileManager.default.createFile(atPath: path, contents: bitmap.representation(using: .png, properties: [:]))
     }
 
     private static func windowInfo(_ option: CGWindowListOption) -> [[String: Any]] {

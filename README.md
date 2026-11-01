@@ -11,8 +11,10 @@ brew install --cask jasurito/tap/barmod
 ```
 
 Then open BarMod and allow it under System Settings → Privacy & Security →
-Accessibility. To start it at login, add it under System Settings → General →
-Login Items.
+Accessibility.
+
+Right-click BarMod's icon and choose Settings… to switch between grid and list,
+hide app logos in the list, or start BarMod at login.
 
 Requires macOS 14 or later. Tested on macOS 26.6 with Apple Silicon. Intel builds
 and macOS 27, which draws the menu bar differently, are untested.
