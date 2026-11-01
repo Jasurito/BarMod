@@ -49,14 +49,19 @@ control.
 
 ## Releasing
 
+Push a version tag:
+
 ```sh
-./Scripts/release.sh 1.2.0
+git tag v1.2.0 && git push origin v1.2.0
 ```
 
-This builds the universal app, publishes the GitHub release, and updates the cask
-in [Jasurito/homebrew-tap](https://github.com/Jasurito/homebrew-tap). Run it from
-the Mac that holds `.signing/`. A different identity makes every user allow
-Accessibility again.
+GitHub Actions tests, builds the universal app, publishes the release, and updates
+the cask in [Jasurito/homebrew-tap](https://github.com/Jasurito/homebrew-tap). See
+`.github/workflows/release.yml`.
+
+Releases are signed with the identity in the repo's secrets. The workflow fails if
+the certificate changes, because a new one makes every user allow Accessibility
+again.
 
 ## How it works
 

@@ -1,5 +1,5 @@
 # Template for Casks/barmod.rb in Jasurito/homebrew-tap.
-# Scripts/release.sh fills in @VERSION@ and @SHA256@ and pushes it to the tap.
+# The release workflow fills in @VERSION@ and @SHA256@ and pushes it to the tap.
 cask "barmod" do
   version "@VERSION@"
   sha256 "@SHA256@"
